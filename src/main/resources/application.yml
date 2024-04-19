@@ -1,0 +1,5 @@
+springdoc:
+  swagger-ui:
+    path: /api/auth/
+  paths-to-match:
+    - /api/auth/** # swagger api? ?????
