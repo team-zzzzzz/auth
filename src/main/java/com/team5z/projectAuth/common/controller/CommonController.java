@@ -1,4 +1,4 @@
-package com.team5z.projectAuth.auth.controller;
+package com.team5z.projectAuth.common.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
