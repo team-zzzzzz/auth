@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
@@ -30,6 +31,7 @@ public class MemberRequest {
 
     @Schema(description = "비밀번호 확인", example = "123456")
     @Length(min = 5, max = 20, message = "password는 5~20글자 입니다.")
+    @NotNull(message = "password_check는 비어있을 수 없습니다.")
     private String passwordCheck;
 
     public Boolean notEqualPasswordCheck() {

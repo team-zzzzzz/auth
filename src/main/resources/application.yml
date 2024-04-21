@@ -1,5 +1,5 @@
 spring:
-  #profile ??
+  #profile
   profiles:
     active: ${server.profile:local}
 logging:
@@ -7,13 +7,13 @@ logging:
     console: "[%d{HH:mm:ss.SSS}][%-5level][%logger.%method:line%line] - %msg%n"
   level:
     root: info
-    com.juno.appling: info
+    com.team5z.projectAuth: info
 
 springdoc:
   swagger-ui:
     path: /api/auth/
   paths-to-match:
-    - /api/auth/** # swagger api? ?????
+    - /api/auth/** # swagger api url
 
 --- #local
 logging:
@@ -21,7 +21,7 @@ logging:
     console: "[%d{HH:mm:ss.SSS}][%-5level][%logger.%method:line%line] - %msg%n"
   level:
     root: info
-    com.juno.appling: debug
+    com.team5z.projectAuth: debug
 
 spring:
   config:
@@ -35,7 +35,7 @@ spring:
       path: /h2-console
   jpa:
     hibernate:
-      ddl-auto: create-drop  #?? ?? ??
+      ddl-auto: create-drop  # do not update
       format_sql: true
     show-sql: true
     defer-datasource-initialization: true
