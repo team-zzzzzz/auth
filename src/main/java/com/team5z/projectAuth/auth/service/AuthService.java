@@ -15,7 +15,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     public ResponseEntity<MemberResponse> join(MemberRequest memberRequest) {
         if (memberRequest.notEqualPasswordCheck()) {
-            throw new RuntimeException("password와 password_check가 동일하지 않습니다.");
+            throw new IllegalArgumentException("password와 password_check가 동일하지 않습니다.");
         }
 
         // todo email 중복 확인
