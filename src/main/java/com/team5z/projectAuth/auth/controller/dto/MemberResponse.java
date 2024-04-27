@@ -19,12 +19,10 @@ import lombok.NoArgsConstructor;
 public class MemberResponse {
     @JsonProperty("member_id")
     private Long memberId;
-    private String nickname;
 
     public static MemberResponse from(MemberEntity saveMember) {
         return MemberResponse.builder()
                 .memberId(saveMember.getMemberId())
-                .nickname(saveMember.getNickname())
                 .build();
     }
 }
