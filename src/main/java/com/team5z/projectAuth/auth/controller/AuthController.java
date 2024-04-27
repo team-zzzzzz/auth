@@ -4,6 +4,7 @@ import com.team5z.projectAuth.auth.controller.dto.MemberRequest;
 import com.team5z.projectAuth.auth.controller.dto.MemberResponse;
 import com.team5z.projectAuth.auth.controller.record.MessageRecord;
 import com.team5z.projectAuth.auth.service.AuthService;
+import com.team5z.projectAuth.global.api.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,7 +31,7 @@ public class AuthController {
             @ApiResponse(responseCode = "201", description = "정상", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
             @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
     })
-    public ResponseEntity<MemberResponse> join(@RequestBody @Validated MemberRequest memberRequest, BindingResult bindingResult) {
+    public ResponseEntity<Response<MemberResponse>> join(@RequestBody @Validated MemberRequest memberRequest, BindingResult bindingResult) {
         return authService.join(memberRequest);
     }
 
@@ -40,7 +41,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "정상", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
             @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
     })
-    public ResponseEntity<MessageRecord> findMemberByEmail(@PathVariable(name = "email") @Schema(description = "가입 이메일", example = "team5z@mail.com") String email) {
+    public ResponseEntity<Response<MessageRecord>> findMemberByEmail(@PathVariable(name = "email") @Schema(description = "가입 이메일", example = "team5z@mail.com") String email) {
         return authService.findMemberByEmail(email);
     }
 }

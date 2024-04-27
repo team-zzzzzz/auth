@@ -8,14 +8,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class Response<T> {
-    private String code;
-    private String message;
-    private T data;
-}
+public record Response<T>(
+        String code, String message, T data
+) {}
