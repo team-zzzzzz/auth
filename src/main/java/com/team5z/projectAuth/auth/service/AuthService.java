@@ -2,6 +2,7 @@ package com.team5z.projectAuth.auth.service;
 
 import com.team5z.projectAuth.auth.controller.dto.MemberRequest;
 import com.team5z.projectAuth.auth.controller.dto.MemberResponse;
+import com.team5z.projectAuth.auth.controller.record.MessageRecord;
 import com.team5z.projectAuth.auth.domain.entity.MemberEntity;
 import com.team5z.projectAuth.auth.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +32,15 @@ public class AuthService {
         MemberEntity saveMember = memberRepository.save(memberEntity);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(MemberResponse.from(saveMember));
+    }
+
+    public ResponseEntity<MessageRecord> findMemberByEmail(String email) {
+        Optional<MemberEntity> findMember = memberRepository.findByEmail(email);
+        if (findMember.isPresent()) {
+            throw new IllegalArgumentException("이미 가입된 email 입니다.");
+        }
+        return ResponseEntity.ok(MessageRecord.builder()
+                .message("정상")
+                .build());
     }
 }
