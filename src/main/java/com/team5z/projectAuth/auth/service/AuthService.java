@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -19,7 +21,10 @@ public class AuthService {
         }
 
         // todo email 중복 확인
-        // todo nickname 중복 확인
+        Optional<MemberEntity> findMember = memberRepository.findByEmail(memberRequest.getEmail());
+        if (findMember.isPresent()) {
+            throw new IllegalArgumentException("이미 가입된 email 입니다.");
+        }
 
         MemberEntity memberEntity = MemberEntity.from(memberRequest);
 
