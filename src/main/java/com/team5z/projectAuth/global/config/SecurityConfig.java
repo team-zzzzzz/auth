@@ -1,6 +1,8 @@
 package com.team5z.projectAuth.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.team5z.projectAuth.global.config.exception.MyAccessDeniedHandler;
+import com.team5z.projectAuth.global.config.exception.MyEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +27,7 @@ public class SecurityConfig {
             "/api/auth/**"
     };
 
-    private static final String[] AUTH_LIST = {
+    private static final String[] SELLER_LIST = {
             "/api/auth/test"
     };
 
@@ -36,7 +38,7 @@ public class SecurityConfig {
                 .headers(c -> c.frameOptions(f -> f.disable()).disable())   // h2 설정
                 .authorizeHttpRequests(auth -> {
                     auth
-                            .requestMatchers(AUTH_LIST).hasRole("SELLER")
+                            .requestMatchers(SELLER_LIST).hasRole("SELLER")
                             .requestMatchers(PathRequest.toH2Console()).permitAll()
                             .anyRequest().permitAll();
                 }).sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

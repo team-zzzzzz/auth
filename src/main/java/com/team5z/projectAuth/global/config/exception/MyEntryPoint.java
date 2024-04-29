@@ -1,4 +1,4 @@
-package com.team5z.projectAuth.global.config;
+package com.team5z.projectAuth.global.config.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team5z.projectAuth.global.api.ErrorDto;
