@@ -1,9 +1,6 @@
 package com.team5z.projectAuth.global.config.apply;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -59,5 +56,27 @@ public class TokenProvider {
         UserDetails principal = new User(claims.getSubject(), "", authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+    }
+
+    /**
+     * token 유효성 검사
+     * @param token
+     * @return TokenValidation
+     */
+    public TokenValidation validateToken(String token) {
+        byte[] keyBytes = Decoders.BASE64.decode(env.getProperty("jwt.secret-key"));
+        Key key = Keys.hmacShaKeyFor(keyBytes);
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return TokenValidation.SUCCESS_JWT;
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            return TokenValidation.MALFORMED_JWT;
+        } catch (ExpiredJwtException e) {
+            return TokenValidation.EXPIRED_JWT;
+        } catch (UnsupportedJwtException e) {
+            return TokenValidation.UNSUPPORTED_JWT;
+        } catch (IllegalArgumentException e) {
+            return TokenValidation.ILLEGAL_ARGUMENT_JWT;
+        }
     }
 }
