@@ -1,6 +1,9 @@
 package com.team5z.projectAuth.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.team5z.projectAuth.global.config.apply.AuthFilter;
+import com.team5z.projectAuth.global.config.apply.JwtSecurityConfig;
+import com.team5z.projectAuth.global.config.apply.TokenProvider;
 import com.team5z.projectAuth.global.config.exception.MyAccessDeniedHandler;
 import com.team5z.projectAuth.global.config.exception.MyEntryPoint;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +13,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -19,6 +24,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     private final MyEntryPoint myEntryPoint;
     private final MyAccessDeniedHandler myAccessDeniedHandler;
+    private final TokenProvider tokenProvider;
     private static final String[] DEFAULT_LIST = {
             "/api/auth/swagger-ui/index.html"
     };
@@ -33,20 +39,23 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity security, ObjectMapper objectMapper, Environment env) throws Exception{
-        return security.csrf(c -> c.disable())
-                .cors(c -> c.disable())
+        return security.csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
                 .headers(c -> c.frameOptions(f -> f.disable()).disable())   // h2 설정
-                .authorizeHttpRequests(auth -> {
-                    auth
-                            .requestMatchers(SELLER_LIST).hasRole("SELLER")
-                            .requestMatchers(PathRequest.toH2Console()).permitAll()
-                            .anyRequest().permitAll();
-                }).sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(
                         e -> e.authenticationEntryPoint(myEntryPoint)
                                 .accessDeniedHandler(myAccessDeniedHandler)
                 ) // 인증 예외처리
-//                .apply()  // 인증처리
+                .addFilterBefore(new AuthFilter(tokenProvider, env, objectMapper), UsernamePasswordAuthenticationFilter.class)
+                .authorizeHttpRequests(auth -> {
+                    auth
+                            .requestMatchers(SELLER_LIST).hasRole("SELLER")
+                            .requestMatchers(PathRequest.toH2Console()).permitAll()
+                            .requestMatchers(DEFAULT_LIST).permitAll()
+                            .anyRequest().permitAll();
+                })
                 .build();
     }
+
 }

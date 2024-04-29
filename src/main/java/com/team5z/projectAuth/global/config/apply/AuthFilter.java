@@ -54,26 +54,6 @@ public class AuthFilter extends OncePerRequestFilter {
             return ;
         }
 
-        // token 유효성 검사
-        TokenValidation tokenValidation = tokenProvider.validateToken(token);
-        if (tokenValidation != TokenValidation.SUCCESS_JWT) {
-            String docs = Optional.ofNullable(env.getProperty("springdoc.swagger-ui.path")).orElse("/api/auth/");
-            List<ErrorDto> errors = new ArrayList<>();
-            errors.add(ErrorDto.builder().message(tokenValidation.name()).build());
-
-            ProblemDetail pb = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED");
-            pb.setType(URI.create(docs));
-            pb.setProperty("errors", errors);
-            pb.setInstance(URI.create(request.getRequestURI()));
-
-            PrintWriter writer = response.getWriter();
-            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            writer.write(objectMapper.writeValueAsString(pb));
-            return ;
-        }
-
         filterChain.doFilter(request, response);
     }
 }
