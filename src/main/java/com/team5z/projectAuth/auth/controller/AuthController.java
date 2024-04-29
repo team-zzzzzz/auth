@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -32,7 +33,14 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
     })
     public ResponseEntity<Response<MemberResponse>> join(@RequestBody @Validated MemberRequest memberRequest, BindingResult bindingResult) {
-        return authService.join(memberRequest);
+        MemberResponse response = authService.join(memberRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Response.<MemberResponse>builder()
+                        .code("0000")
+                        .message("정상")
+                        .data(response)
+                        .build()
+                );
     }
 
     @GetMapping("/{email}")
@@ -42,6 +50,13 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
     })
     public ResponseEntity<Response<MessageRecord>> findMemberByEmail(@PathVariable(name = "email") @Schema(description = "가입 이메일", example = "team5z@mail.com") String email) {
-        return authService.findMemberByEmail(email);
+        MessageRecord response = authService.findMemberByEmail(email);
+        return ResponseEntity.ok(
+                Response.<MessageRecord>builder()
+                        .code("0000")
+                        .message("정상")
+                        .data(response)
+                        .build()
+                );
     }
 }

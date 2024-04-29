@@ -10,14 +10,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AuthService {
     private final MemberRepository memberRepository;
-    public ResponseEntity<Response<MemberResponse>> join(MemberRequest memberRequest) {
+    @Transactional
+    public MemberResponse join(MemberRequest memberRequest) {
         if (memberRequest.notEqualPasswordCheck()) {
             throw new IllegalArgumentException("password와 password_check가 동일하지 않습니다.");
         }
@@ -31,28 +34,16 @@ public class AuthService {
         MemberEntity memberEntity = MemberEntity.from(memberRequest);
 
         MemberEntity saveMember = memberRepository.save(memberEntity);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.<MemberResponse>builder()
-                        .code("0000")
-                        .message("정상")
-                        .data(MemberResponse.from(saveMember))
-                        .build()
-                    );
+        return MemberResponse.from(saveMember);
     }
 
-    public ResponseEntity<Response<MessageRecord>> findMemberByEmail(String email) {
+    public MessageRecord findMemberByEmail(String email) {
         Optional<MemberEntity> findMember = memberRepository.findByEmail(email);
         if (findMember.isPresent()) {
             throw new IllegalArgumentException("이미 가입된 email 입니다.");
         }
-        return ResponseEntity.ok(
-                Response.<MessageRecord>builder()
-                        .code("0000")
-                        .message("정상")
-                        .data(MessageRecord.builder()
-                                .message("정상")
-                                .build())
-                        .build()
-                );
+        return MessageRecord.builder()
+                .message("정상")
+                .build();
     }
 }
