@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -47,7 +48,6 @@ public class SecurityConfig {
                         e -> e.authenticationEntryPoint(myEntryPoint)
                                 .accessDeniedHandler(myAccessDeniedHandler)
                 ) // 인증 예외처리
-                .addFilterBefore(new AuthFilter(tokenProvider, env, objectMapper), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> {
                     auth
                             .requestMatchers(SELLER_LIST).hasRole("SELLER")
@@ -55,7 +55,12 @@ public class SecurityConfig {
                             .requestMatchers(DEFAULT_LIST).permitAll()
                             .anyRequest().permitAll();
                 })
+                .addFilterBefore(new AuthFilter(env, objectMapper, tokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder () {
+        return new BCryptPasswordEncoder();
+    }
 }

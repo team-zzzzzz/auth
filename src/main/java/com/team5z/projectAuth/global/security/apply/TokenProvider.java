@@ -1,5 +1,6 @@
 package com.team5z.projectAuth.global.security.apply;
 
+import com.team5z.projectAuth.auth.controller.record.LoginRecord;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -41,9 +42,11 @@ public class TokenProvider {
         try {
             JwtParser jwtParser = Jwts.parserBuilder().setSigningKey(key).build();
             claims = jwtParser.parseClaimsJws(token).getBody();
-        } catch (ExpiredJwtException e) {
+        } catch (MalformedJwtException me) {
+            // invalid token
+        } catch (ExpiredJwtException ee) {
             // token expired
-            claims = e.getClaims();
+            claims = ee.getClaims();
         }
 
         // claims authentication 가져오기
@@ -78,5 +81,28 @@ public class TokenProvider {
         } catch (IllegalArgumentException e) {
             return TokenValidation.ILLEGAL_ARGUMENT_JWT;
         }
+    }
+
+    /**
+     * token 발급
+     * @param authenticate
+     * @return LoginRecord
+     */
+    public LoginRecord createToken(Authentication authenticate) {
+        // todo token 만들어야 함.
+        // 권한들 가져오기
+        String authorities = authenticate.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        // Access Token 생성
+        String accessToken = "access";
+        // Refresh Token 생성
+        String refreshToken = "refresh";
+
+        return LoginRecord.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 }

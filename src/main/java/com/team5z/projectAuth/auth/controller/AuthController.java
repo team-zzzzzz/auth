@@ -1,7 +1,9 @@
 package com.team5z.projectAuth.auth.controller;
 
+import com.team5z.projectAuth.auth.controller.dto.LoginRequest;
 import com.team5z.projectAuth.auth.controller.dto.MemberRequest;
 import com.team5z.projectAuth.auth.controller.dto.MemberResponse;
+import com.team5z.projectAuth.auth.controller.record.LoginRecord;
 import com.team5z.projectAuth.auth.controller.record.MessageRecord;
 import com.team5z.projectAuth.auth.service.AuthService;
 import com.team5z.projectAuth.global.api.Response;
@@ -58,5 +60,17 @@ public class AuthController {
                         .data(response)
                         .build()
                 );
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Response<LoginRecord>> login(@RequestBody @Validated LoginRequest loginRequest, BindingResult bindingResult) {
+        LoginRecord response = authService.login(loginRequest);
+        return ResponseEntity.ok(
+                Response.<LoginRecord>builder()
+                        .code("0000")
+                        .message("정상")
+                        .data(response)
+                        .build()
+        );
     }
 }
