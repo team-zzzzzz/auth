@@ -1,4 +1,4 @@
-package com.team5z.projectAuth.global.config.apply;
+package com.team5z.projectAuth.global.security.apply;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;

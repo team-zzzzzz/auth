@@ -1,4 +1,4 @@
-package com.team5z.projectAuth.global.config.apply;
+package com.team5z.projectAuth.global.security.apply;
 
 public enum TokenValidation {
     SUCCESS_JWT,

@@ -1,4 +1,4 @@
-package com.team5z.projectAuth.global.config.exception;
+package com.team5z.projectAuth.global.security.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team5z.projectAuth.global.api.ErrorDto;
@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
