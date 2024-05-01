@@ -35,7 +35,7 @@ public class AuthService {
             throw new IllegalArgumentException("password와 password_check가 동일하지 않습니다.");
         }
 
-        // todo email 중복 확인
+        // email 중복 확인
         Optional<MemberEntity> findMember = memberRepository.findByEmail(memberRequest.getEmail());
         if (findMember.isPresent()) {
             throw new IllegalArgumentException("이미 가입된 email 입니다.");
@@ -58,13 +58,12 @@ public class AuthService {
     }
 
     public LoginRecord login(LoginRequest loginRequest) {
-        // id, pw 기반으로 UsernamePasswordAuthenticationToken 객체 생
+        // id, pw 기반으로 UsernamePasswordAuthenticationToken 객체 생성
         UsernamePasswordAuthenticationToken authenticationToken = loginRequest.toAuthentication();
-        // security에 구현한 AuthService가 실행됨
+        // security에 구현한 MyUserDetailsService 실행됨
         Authentication authenticate = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        LoginRecord response = tokenProvider.createToken(authenticate);
         // todo token redis 저장
 
-        return response;
+        return tokenProvider.createToken(authenticate);
     }
 }

@@ -15,7 +15,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -89,16 +93,35 @@ public class TokenProvider {
      * @return LoginRecord
      */
     public LoginRecord createToken(Authentication authenticate) {
-        // todo token 만들어야 함.
+        byte[] keyBytes = Decoders.BASE64.decode(env.getProperty("jwt.secret-key"));
+        Key key = Keys.hmacShaKeyFor(keyBytes);
+
         // 권한들 가져오기
         String authorities = authenticate.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+
+        LocalDateTime now = LocalDateTime.now();
+        // LocalDateTime을 Instant로 변환
+        LocalDateTime accessExpiration = now.plusMinutes(10L);  //토큰 유효시간은 10분
+        Instant instant = accessExpiration.atZone(ZoneId.systemDefault()).toInstant();
+
         // Access Token 생성
-        String accessToken = "access";
+        String accessToken = Jwts.builder()
+                .setSubject(authenticate.getName())       // payload "sub": "name"
+                .claim(AUTH_KEY, authorities)        // payload "auth": "ROLE_USER"
+                .setExpiration(Date.from(instant))        // payload "exp": 1516239022 (예시)
+                .signWith(key, SignatureAlgorithm.HS512)    // header "alg": "HS512"
+                .compact();
+
         // Refresh Token 생성
-        String refreshToken = "refresh";
+        LocalDateTime refreshExpiration = now.plusMinutes(60L);  //토큰 유효시간은 60분
+        instant = refreshExpiration.atZone(ZoneId.systemDefault()).toInstant();
+        String refreshToken = Jwts.builder()
+                .setExpiration(Date.from(instant))  // payload "exp": 1516239022 (예시)
+                .signWith(key, SignatureAlgorithm.HS512)    // header "alg": "HS512"
+                .compact();
 
         return LoginRecord.builder()
                 .accessToken(accessToken)
