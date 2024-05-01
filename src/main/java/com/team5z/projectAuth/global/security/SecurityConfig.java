@@ -25,21 +25,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final MyEntryPoint myEntryPoint;
     private final MyAccessDeniedHandler myAccessDeniedHandler;
-    private final TokenProvider tokenProvider;
-    private static final String[] DEFAULT_LIST = {
-            "/api/auth/swagger-ui/index.html"
-    };
-
-    private static final String[] WHITE_LIST = {
-            "/api/auth/**"
-    };
-
-    private static final String[] SELLER_LIST = {
-            "/api/auth/test"
-    };
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity security, ObjectMapper objectMapper, Environment env) throws Exception{
+    public SecurityFilterChain filterChain(HttpSecurity security) throws Exception{
         return security.csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .headers(c -> c.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable).disable())   // h2 설정
@@ -48,14 +36,7 @@ public class SecurityConfig {
                         e -> e.authenticationEntryPoint(myEntryPoint)
                                 .accessDeniedHandler(myAccessDeniedHandler)
                 ) // 인증 예외처리
-                .authorizeHttpRequests(auth -> {
-                    auth
-                            .requestMatchers(SELLER_LIST).hasRole("SELLER")
-                            .requestMatchers(PathRequest.toH2Console()).permitAll()
-                            .requestMatchers(DEFAULT_LIST).permitAll()
-                            .anyRequest().permitAll();
-                })
-                .addFilterBefore(new AuthFilter(env, objectMapper, tokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .build();
     }
 
