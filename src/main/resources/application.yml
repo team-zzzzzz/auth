@@ -16,7 +16,7 @@ springdoc:
     - /api/auth/** # swagger api url
 
 jwt:
-  secret-key: secretkeyjunoprojectauth12345678909876543210
+  secret-key: c3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LXRlYW01ei1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdGVhbTV6LWF1dGg=
 --- #local
 logging:
   pattern:
@@ -51,3 +51,9 @@ spring:
       #      jdbc-url: jdbc:h2:tcp://localhost/~/project
       username: sa
       password:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      database: 0
