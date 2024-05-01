@@ -15,6 +15,8 @@ springdoc:
   paths-to-match:
     - /api/auth/** # swagger api url
 
+jwt:
+  secret-key: secretkeyjunoprojectauth12345678909876543210
 --- #local
 logging:
   pattern:

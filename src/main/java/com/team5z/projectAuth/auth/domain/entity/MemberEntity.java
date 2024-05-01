@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
 @Getter
@@ -27,10 +28,10 @@ public class MemberEntity {
     @Column(length = 200)       // 암호화 되기 때문에 비밀번호 크기가 늘어남
     private String password;    // security 사용해서 암호화 예정
 
-    public static MemberEntity from(MemberRequest memberRequest) {
+    public static MemberEntity from(MemberRequest memberRequest, BCryptPasswordEncoder passwordEncoder) {
         return MemberEntity.builder()
                 .email(memberRequest.getEmail())
-                .password(memberRequest.getPassword())
+                .password(passwordEncoder.encode(memberRequest.getPassword()))
                 .build();
     }
 }

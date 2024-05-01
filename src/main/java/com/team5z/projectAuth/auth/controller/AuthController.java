@@ -1,7 +1,9 @@
 package com.team5z.projectAuth.auth.controller;
 
+import com.team5z.projectAuth.auth.controller.dto.LoginRequest;
 import com.team5z.projectAuth.auth.controller.dto.MemberRequest;
 import com.team5z.projectAuth.auth.controller.dto.MemberResponse;
+import com.team5z.projectAuth.auth.controller.record.LoginRecord;
 import com.team5z.projectAuth.auth.controller.record.MessageRecord;
 import com.team5z.projectAuth.auth.service.AuthService;
 import com.team5z.projectAuth.global.api.Response;
@@ -12,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -32,7 +35,14 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
     })
     public ResponseEntity<Response<MemberResponse>> join(@RequestBody @Validated MemberRequest memberRequest, BindingResult bindingResult) {
-        return authService.join(memberRequest);
+        MemberResponse response = authService.join(memberRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Response.<MemberResponse>builder()
+                        .code("0000")
+                        .message("정상")
+                        .data(response)
+                        .build()
+                );
     }
 
     @GetMapping("/{email}")
@@ -42,6 +52,25 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
     })
     public ResponseEntity<Response<MessageRecord>> findMemberByEmail(@PathVariable(name = "email") @Schema(description = "가입 이메일", example = "team5z@mail.com") String email) {
-        return authService.findMemberByEmail(email);
+        MessageRecord response = authService.findMemberByEmail(email);
+        return ResponseEntity.ok(
+                Response.<MessageRecord>builder()
+                        .code("0000")
+                        .message("정상")
+                        .data(response)
+                        .build()
+                );
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Response<LoginRecord>> login(@RequestBody @Validated LoginRequest loginRequest, BindingResult bindingResult) {
+        LoginRecord response = authService.login(loginRequest);
+        return ResponseEntity.ok(
+                Response.<LoginRecord>builder()
+                        .code("0000")
+                        .message("정상")
+                        .data(response)
+                        .build()
+        );
     }
 }
