@@ -106,26 +106,29 @@ public class TokenProvider {
         // LocalDateTime을 Instant로 변환
         LocalDateTime accessExpiration = now.plusMinutes(10L);  //토큰 유효시간은 10분
         Instant instant = accessExpiration.atZone(ZoneId.systemDefault()).toInstant();
-
+        Date accessExpired = Date.from(instant);
         // Access Token 생성
         String accessToken = Jwts.builder()
                 .setSubject(authenticate.getName())       // payload "sub": "name"
                 .claim(AUTH_KEY, authorities)        // payload "auth": "ROLE_USER"
-                .setExpiration(Date.from(instant))        // payload "exp": 1516239022 (예시)
+                .setExpiration(accessExpired)        // payload "exp": 1516239022 (예시)
                 .signWith(key, SignatureAlgorithm.HS512)    // header "alg": "HS512"
                 .compact();
 
         // Refresh Token 생성
         LocalDateTime refreshExpiration = now.plusMinutes(60L);  //토큰 유효시간은 60분
         instant = refreshExpiration.atZone(ZoneId.systemDefault()).toInstant();
+        Date refreshExpired = Date.from(instant);
         String refreshToken = Jwts.builder()
-                .setExpiration(Date.from(instant))  // payload "exp": 1516239022 (예시)
+                .setExpiration(refreshExpired)  // payload "exp": 1516239022 (예시)
                 .signWith(key, SignatureAlgorithm.HS512)    // header "alg": "HS512"
                 .compact();
 
         return LoginRecord.builder()
                 .accessToken(accessToken)
+                .accessTokenExpired(accessExpired.getTime())
                 .refreshToken(refreshToken)
+                .refreshTokenExpired(refreshExpired.getTime())
                 .build();
     }
 }

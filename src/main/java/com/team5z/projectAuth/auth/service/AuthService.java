@@ -10,6 +10,8 @@ import com.team5z.projectAuth.auth.repository.MemberRepository;
 import com.team5z.projectAuth.global.api.Response;
 import com.team5z.projectAuth.global.security.apply.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -29,6 +32,8 @@ public class AuthService {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final RedisTemplate<String, Object> redisTemplate;
+
     @Transactional
     public MemberResponse join(MemberRequest memberRequest) {
         if (memberRequest.notEqualPasswordCheck()) {
@@ -62,8 +67,13 @@ public class AuthService {
         UsernamePasswordAuthenticationToken authenticationToken = loginRequest.toAuthentication();
         // security에 구현한 MyUserDetailsService 실행됨
         Authentication authenticate = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        // todo token redis 저장
+        LoginRecord loginRecord = tokenProvider.createToken(authenticate);
+        // token redis 저장
+        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+        ops.set(loginRecord.refreshToken(), loginRecord.accessToken());
+        redisTemplate.expireAt(loginRecord.refreshToken(), Instant.ofEpochSecond(loginRecord.refreshTokenExpired()));
+        // todo access token 처리 고민 중
 
-        return tokenProvider.createToken(authenticate);
+        return loginRecord;
     }
 }
