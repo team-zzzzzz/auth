@@ -2,7 +2,7 @@ package com.team5z.projectAuth.auth.controller;
 
 import com.team5z.projectAuth.auth.domain.dto.LoginRequest;
 import com.team5z.projectAuth.auth.domain.dto.MemberRequest;
-import com.team5z.projectAuth.auth.domain.dto.MemberResponse;
+import com.team5z.projectAuth.auth.domain.record.MemberResponse;
 import com.team5z.projectAuth.auth.domain.record.LoginRecord;
 import com.team5z.projectAuth.auth.domain.record.MessageRecord;
 import com.team5z.projectAuth.auth.service.AuthService;
