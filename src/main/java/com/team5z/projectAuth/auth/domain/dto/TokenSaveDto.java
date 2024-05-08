@@ -18,7 +18,7 @@ public class TokenSaveDto {
 
     public static TokenSaveDto from(Authentication authenticate) {
         return TokenSaveDto.builder()
-                .memberId((Long) authenticate.getPrincipal())
+                .memberId(Long.parseLong(authenticate.getName()))
                 .role(authenticate.getAuthorities().stream().map(String::valueOf).collect(Collectors.joining(",")))
                 .build();
     }

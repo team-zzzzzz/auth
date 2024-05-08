@@ -11,6 +11,7 @@ import com.team5z.projectAuth.auth.domain.record.MessageRecord;
 import com.team5z.projectAuth.auth.domain.entity.MemberEntity;
 import com.team5z.projectAuth.auth.repository.MemberRepository;
 import com.team5z.projectAuth.global.security.apply.TokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Service
 @RequiredArgsConstructor
@@ -84,6 +87,31 @@ public class AuthService {
 
         redisTemplate.expireAt(loginRecord.refreshToken(), Instant.ofEpochSecond(loginRecord.refreshTokenExpired()));
 
+        return loginRecord;
+    }
+
+    public LoginRecord refresh(String refreshToken) {
+        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+        String tokenSaveAsString = Optional.ofNullable(ops.get(refreshToken)).orElse("").toString();
+        if (tokenSaveAsString.isEmpty()) {
+            throw new IllegalArgumentException("유효하지 않은 refresh token 입니다.");
+        }
+
+        TokenSaveDto tokenSaveDto = null;
+        try {
+            tokenSaveDto = objectMapper.readValue(tokenSaveAsString, TokenSaveDto.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("tokenSaveDto convert dto fail", e);
+        }
+        LoginRecord loginRecord = tokenProvider.createToken(tokenSaveDto);
+        redisTemplate.delete(refreshToken);
+
+        try {
+            ops.set(loginRecord.refreshToken(), objectMapper.writeValueAsString(tokenSaveDto));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("tokenSaveDto convert string fail", e);
+        }
+        redisTemplate.expireAt(loginRecord.refreshToken(), Instant.ofEpochSecond(loginRecord.refreshTokenExpired()));
         return loginRecord;
     }
 }

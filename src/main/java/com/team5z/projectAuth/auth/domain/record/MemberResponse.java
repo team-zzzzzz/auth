@@ -8,7 +8,6 @@ import com.team5z.projectAuth.auth.domain.entity.MemberEntity;
 import lombok.Builder;
 import lombok.Getter;
 
-@Getter
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)

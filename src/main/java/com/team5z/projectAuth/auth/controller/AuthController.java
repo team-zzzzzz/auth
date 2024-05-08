@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -63,6 +64,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "로그인", description = "로그인 api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+    })
     public ResponseEntity<Response<LoginRecord>> login(@RequestBody @Validated LoginRequest loginRequest, BindingResult bindingResult) {
         LoginRecord response = authService.login(loginRequest);
         return ResponseEntity.ok(
@@ -70,6 +76,26 @@ public class AuthController {
                         .code("0000")
                         .message("정상")
                         .data(response)
+                        .build()
+        );
+    }
+
+    @GetMapping("/refresh/{refresh_token}")
+    @Operation(summary = "token 재발급", description = "token 재발급 api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+    })
+    public ResponseEntity<Response<LoginRecord>> refresh(@PathVariable(name = "refresh_token")
+                                                             @NotNull(message = "refresh_token 비어있을 수 없습니다.")
+                                                             @Schema(description = "refresh token", example = "refresh token을 입력해주세요.")
+                                                             String refreshToken) {
+        LoginRecord loginRecord = authService.refresh(refreshToken);
+        return ResponseEntity.ok(
+                Response.<LoginRecord>builder()
+                        .code("0000")
+                        .message("정상")
+                        .data(loginRecord)
                         .build()
         );
     }
