@@ -24,14 +24,4 @@ public class CommonController {
     public String health() {
         return "ok";
     }
-
-    @GetMapping("/test")
-    @Operation(summary = "Auth Check", description = "api auth check", security = @SecurityRequirement(name = "Authorization"))
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "정상일 경우 ok 반환", content = @Content(mediaType = MediaType.TEXT_PLAIN_VALUE)),
-            @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
-    })
-    public String test() {
-        return "인증하면 보여줌";
-    }
 }

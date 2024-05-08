@@ -27,40 +27,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RequiredArgsConstructor
 @Slf4j
 public class AuthFilter extends OncePerRequestFilter {
-    private final Environment env;
-    private final ObjectMapper objectMapper;
     private final TokenProvider tokenProvider;
-    private final String AUTH_PREFIX = "Bearer ";
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // 인증처리
         String token = request.getHeader(AUTHORIZATION);
+        Authentication authentication = tokenProvider.getAuthentication(token);
 
-        // 테스트용 토큰
-        if (token != null && token.equals("Bearer access")) {
-            List<GrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority("ROLE_SELLER"));
-
-            SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("access", "", authorities)
-            );
-            filterChain.doFilter(request, response);
-            return ;
-        }
-
-        // 실제 토큰 동작
-        if (token != null && token.startsWith(AUTH_PREFIX)) {
-            Authentication authentication = tokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
-
+        String role = authentication.getAuthorities().stream().map(String::valueOf).collect(Collectors.joining(","));
+        request.setAttribute("memberId", authentication.getName());
+        request.setAttribute("role", role);
         filterChain.doFilter(request, response);
     }
 }

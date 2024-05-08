@@ -10,6 +10,7 @@ import com.team5z.projectAuth.auth.repository.MemberRepository;
 import com.team5z.projectAuth.global.api.Response;
 import com.team5z.projectAuth.global.security.apply.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class AuthService {
     private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
@@ -70,9 +72,8 @@ public class AuthService {
         LoginRecord loginRecord = tokenProvider.createToken(authenticate);
         // token redis 저장
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
-        ops.set(loginRecord.refreshToken(), loginRecord.accessToken());
+        ops.set(loginRecord.refreshToken(), authenticate.getName());
         redisTemplate.expireAt(loginRecord.refreshToken(), Instant.ofEpochSecond(loginRecord.refreshTokenExpired()));
-        // todo access token 처리 고민 중
 
         return loginRecord;
     }
