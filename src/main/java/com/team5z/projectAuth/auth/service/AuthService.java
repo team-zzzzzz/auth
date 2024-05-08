@@ -1,7 +1,10 @@
 package com.team5z.projectAuth.auth.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team5z.projectAuth.auth.domain.dto.LoginRequest;
 import com.team5z.projectAuth.auth.domain.dto.MemberRequest;
+import com.team5z.projectAuth.auth.domain.dto.TokenSaveDto;
 import com.team5z.projectAuth.auth.domain.record.MemberResponse;
 import com.team5z.projectAuth.auth.domain.record.LoginRecord;
 import com.team5z.projectAuth.auth.domain.record.MessageRecord;
@@ -32,6 +35,7 @@ public class AuthService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final BCryptPasswordEncoder passwordEncoder;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public MemberResponse join(MemberRequest memberRequest) {
@@ -67,10 +71,17 @@ public class AuthService {
         // security에 구현한 MyUserDetailsService 실행됨
         Authentication authenticate = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         LoginRecord loginRecord = tokenProvider.createToken(authenticate);
+        TokenSaveDto tokenSaveDto = TokenSaveDto.from(authenticate);
 
         // token redis 저장
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
-        ops.set(loginRecord.refreshToken(), authenticate.getName());
+
+        try {
+            ops.set(loginRecord.refreshToken(), objectMapper.writeValueAsString(tokenSaveDto));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("tokenSaveDto convert string fail", e);
+        }
+
         redisTemplate.expireAt(loginRecord.refreshToken(), Instant.ofEpochSecond(loginRecord.refreshTokenExpired()));
 
         return loginRecord;
