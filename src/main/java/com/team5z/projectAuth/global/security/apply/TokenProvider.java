@@ -1,6 +1,6 @@
 package com.team5z.projectAuth.global.security.apply;
 
-import com.team5z.projectAuth.auth.controller.record.LoginRecord;
+import com.team5z.projectAuth.auth.domain.record.LoginRecord;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

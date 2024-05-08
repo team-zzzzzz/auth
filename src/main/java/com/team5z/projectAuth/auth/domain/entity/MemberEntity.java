@@ -1,6 +1,6 @@
 package com.team5z.projectAuth.auth.domain.entity;
 
-import com.team5z.projectAuth.auth.controller.dto.MemberRequest;
+import com.team5z.projectAuth.auth.domain.dto.MemberRequest;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;

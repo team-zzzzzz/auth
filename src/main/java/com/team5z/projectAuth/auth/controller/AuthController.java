@@ -1,10 +1,10 @@
 package com.team5z.projectAuth.auth.controller;
 
-import com.team5z.projectAuth.auth.controller.dto.LoginRequest;
-import com.team5z.projectAuth.auth.controller.dto.MemberRequest;
-import com.team5z.projectAuth.auth.controller.dto.MemberResponse;
-import com.team5z.projectAuth.auth.controller.record.LoginRecord;
-import com.team5z.projectAuth.auth.controller.record.MessageRecord;
+import com.team5z.projectAuth.auth.domain.dto.LoginRequest;
+import com.team5z.projectAuth.auth.domain.dto.MemberRequest;
+import com.team5z.projectAuth.auth.domain.dto.MemberResponse;
+import com.team5z.projectAuth.auth.domain.record.LoginRecord;
+import com.team5z.projectAuth.auth.domain.record.MessageRecord;
 import com.team5z.projectAuth.auth.service.AuthService;
 import com.team5z.projectAuth.global.api.Response;
 import io.swagger.v3.oas.annotations.Operation;

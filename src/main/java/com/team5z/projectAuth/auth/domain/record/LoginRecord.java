@@ -1,4 +1,4 @@
-package com.team5z.projectAuth.auth.controller.record;
+package com.team5z.projectAuth.auth.domain.record;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
