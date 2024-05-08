@@ -1,4 +1,4 @@
-package com.team5z.projectAuth.auth.controller.record;
+package com.team5z.projectAuth.auth.domain.record;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,6 +13,10 @@ public record LoginRecord(
     @JsonProperty("access_token")
     String accessToken,
     @JsonProperty("refresh_token")
-    String refreshToken
+    String refreshToken,
+    @JsonProperty("access_token_expired")
+    Long accessTokenExpired,
+    @JsonProperty("refresh_token_expired")
+    Long refreshTokenExpired
 ) {
 }

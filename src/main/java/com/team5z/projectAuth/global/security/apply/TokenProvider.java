@@ -1,6 +1,7 @@
 package com.team5z.projectAuth.global.security.apply;
 
-import com.team5z.projectAuth.auth.controller.record.LoginRecord;
+import com.team5z.projectAuth.auth.domain.dto.TokenSaveDto;
+import com.team5z.projectAuth.auth.domain.record.LoginRecord;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -15,7 +16,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -89,20 +94,76 @@ public class TokenProvider {
      * @return LoginRecord
      */
     public LoginRecord createToken(Authentication authenticate) {
-        // todo token 만들어야 함.
+        byte[] keyBytes = Decoders.BASE64.decode(env.getProperty("jwt.secret-key"));
+        Key key = Keys.hmacShaKeyFor(keyBytes);
+
         // 권한들 가져오기
         String authorities = authenticate.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+
+        LocalDateTime now = LocalDateTime.now();
+        // LocalDateTime을 Instant로 변환
+        LocalDateTime accessExpiration = now.plusMinutes(10L);  //토큰 유효시간은 10분
+        Instant instant = accessExpiration.atZone(ZoneId.systemDefault()).toInstant();
+        Date accessExpired = Date.from(instant);
         // Access Token 생성
-        String accessToken = "access";
+        String accessToken = Jwts.builder()
+                .setSubject(authenticate.getName())       // payload "sub": "name"
+                .claim(AUTH_KEY, authorities)        // payload "auth": "ROLE_USER"
+                .setExpiration(accessExpired)        // payload "exp": 1516239022 (예시)
+                .signWith(key, SignatureAlgorithm.HS512)    // header "alg": "HS512"
+                .compact();
+
         // Refresh Token 생성
-        String refreshToken = "refresh";
+        LocalDateTime refreshExpiration = now.plusMinutes(60L);  //토큰 유효시간은 60분
+        instant = refreshExpiration.atZone(ZoneId.systemDefault()).toInstant();
+        Date refreshExpired = Date.from(instant);
+        String refreshToken = Jwts.builder()
+                .setExpiration(refreshExpired)  // payload "exp": 1516239022 (예시)
+                .signWith(key, SignatureAlgorithm.HS512)    // header "alg": "HS512"
+                .compact();
 
         return LoginRecord.builder()
                 .accessToken(accessToken)
+                .accessTokenExpired(accessExpired.getTime())
                 .refreshToken(refreshToken)
+                .refreshTokenExpired(refreshExpired.getTime())
+                .build();
+    }
+
+    public LoginRecord createToken(TokenSaveDto tokenSaveDto) {
+        byte[] keyBytes = Decoders.BASE64.decode(env.getProperty("jwt.secret-key"));
+        Key key = Keys.hmacShaKeyFor(keyBytes);
+
+        LocalDateTime now = LocalDateTime.now();
+        // LocalDateTime을 Instant로 변환
+        LocalDateTime accessExpiration = now.plusMinutes(10L);  //토큰 유효시간은 10분
+        Instant instant = accessExpiration.atZone(ZoneId.systemDefault()).toInstant();
+        Date accessExpired = Date.from(instant);
+        // Access Token 생성
+        String accessToken = Jwts.builder()
+                .setSubject(String.valueOf(tokenSaveDto.getMemberId()))       // payload "sub": "name"
+                .claim(AUTH_KEY, tokenSaveDto.getRole())        // payload "auth": "ROLE_USER"
+                .setExpiration(accessExpired)        // payload "exp": 1516239022 (예시)
+                .signWith(key, SignatureAlgorithm.HS512)    // header "alg": "HS512"
+                .compact();
+
+        // Refresh Token 생성
+        LocalDateTime refreshExpiration = now.plusMinutes(60L);  //토큰 유효시간은 60분
+        instant = refreshExpiration.atZone(ZoneId.systemDefault()).toInstant();
+        Date refreshExpired = Date.from(instant);
+        String refreshToken = Jwts.builder()
+                .setExpiration(refreshExpired)  // payload "exp": 1516239022 (예시)
+                .signWith(key, SignatureAlgorithm.HS512)    // header "alg": "HS512"
+                .compact();
+
+        return LoginRecord.builder()
+                .accessToken(accessToken)
+                .accessTokenExpired(accessExpired.getTime())
+                .refreshToken(refreshToken)
+                .refreshTokenExpired(refreshExpired.getTime())
                 .build();
     }
 }

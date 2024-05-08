@@ -1,5 +1,6 @@
 package com.team5z.projectAuth.auth.controller.dto;
 
+import com.team5z.projectAuth.auth.domain.dto.MemberRequest;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package com.team5z.projectAuth.auth.controller.dto;
+package com.team5z.projectAuth.auth.domain.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
