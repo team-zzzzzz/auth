@@ -121,7 +121,6 @@ public class AuthService {
     }
 
     public BizInfoListRecord getBizInfo(String bizNumber) {
-        // todo model로 정의 해야함.
         Map<String, Object> map = new HashMap<>();
         List<String> bizNumberList = new ArrayList<>();
         bizNumberList.add(bizNumber.replaceAll("-", ""));
@@ -132,7 +131,6 @@ public class AuthService {
         URI uri = URI.create(url);
 
         RestClient restClient = RestClient.create();
-        // todo 반환 받는 데이터도 model 정의
         ResponseEntity<BizInfoListRecord> entity = restClient.post().uri(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
