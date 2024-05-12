@@ -105,7 +105,7 @@ public class AuthController {
     @GetMapping("/biz/{biz_number}")
     @Operation(summary = "사업자 번호 인증", description = "사업자 번호 인증 api")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "정상", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "200", description = "정상", content = @Content(schema = @Schema(implementation = BizInfoListRecord.class))),
             @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
     })
     public ResponseEntity<Response<BizInfoListRecord>> getBizInfo(@PathVariable(name = "biz_number")
