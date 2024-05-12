@@ -2,10 +2,12 @@ package com.team5z.projectAuth.auth.controller;
 
 import com.team5z.projectAuth.auth.domain.dto.LoginRequest;
 import com.team5z.projectAuth.auth.domain.dto.MemberRequest;
+import com.team5z.projectAuth.auth.domain.record.BizInfoListRecord;
 import com.team5z.projectAuth.auth.domain.record.MemberResponse;
 import com.team5z.projectAuth.auth.domain.record.LoginRecord;
 import com.team5z.projectAuth.auth.domain.record.MessageRecord;
 import com.team5z.projectAuth.auth.service.AuthService;
+import com.team5z.projectAuth.global.api.ApiCode;
 import com.team5z.projectAuth.global.api.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,8 +41,8 @@ public class AuthController {
         MemberResponse response = authService.join(memberRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.<MemberResponse>builder()
-                        .code("0000")
-                        .message("정상")
+                        .code(ApiCode.SUCCESS.getCode())
+                        .message(ApiCode.SUCCESS.getMessage())
                         .data(response)
                         .build()
                 );
@@ -56,8 +58,8 @@ public class AuthController {
         MessageRecord response = authService.findMemberByEmail(email);
         return ResponseEntity.ok(
                 Response.<MessageRecord>builder()
-                        .code("0000")
-                        .message("정상")
+                        .code(ApiCode.SUCCESS.getCode())
+                        .message(ApiCode.SUCCESS.getMessage())
                         .data(response)
                         .build()
                 );
@@ -73,8 +75,8 @@ public class AuthController {
         LoginRecord response = authService.login(loginRequest);
         return ResponseEntity.ok(
                 Response.<LoginRecord>builder()
-                        .code("0000")
-                        .message("정상")
+                        .code(ApiCode.SUCCESS.getCode())
+                        .message(ApiCode.SUCCESS.getMessage())
                         .data(response)
                         .build()
         );
@@ -93,10 +95,30 @@ public class AuthController {
         LoginRecord loginRecord = authService.refresh(refreshToken);
         return ResponseEntity.ok(
                 Response.<LoginRecord>builder()
-                        .code("0000")
-                        .message("정상")
+                        .code(ApiCode.SUCCESS.getCode())
+                        .message(ApiCode.SUCCESS.getMessage())
                         .data(loginRecord)
                         .build()
+        );
+    }
+
+    @GetMapping("/biz/{biz_number}")
+    @Operation(summary = "사업자 번호 인증", description = "사업자 번호 인증 api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상", content = @Content(schema = @Schema(implementation = BizInfoListRecord.class))),
+            @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+    })
+    public ResponseEntity<Response<BizInfoListRecord>> getBizInfo(@PathVariable(name = "biz_number")
+                                                         @NotNull(message = "biz_number 비어있을 수 없습니다.")
+                                                         @Schema(description = "biz number", example = "144-81-03460")
+                                                         String bizNumber) {
+        BizInfoListRecord bizInfo = authService.getBizInfo(bizNumber);
+        return ResponseEntity.ok(
+            Response.<BizInfoListRecord>builder()
+                    .code(ApiCode.SUCCESS.getCode())
+                    .message(ApiCode.SUCCESS.getMessage())
+                    .data(bizInfo)
+                    .build()
         );
     }
 }

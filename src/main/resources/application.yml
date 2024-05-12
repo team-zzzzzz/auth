@@ -17,6 +17,8 @@ springdoc:
 
 jwt:
   secret-key: c3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LXRlYW01ei1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdGVhbTV6LWF1dGg=
+api:
+  biz: {api.biz}
 --- #local
 logging:
   pattern:

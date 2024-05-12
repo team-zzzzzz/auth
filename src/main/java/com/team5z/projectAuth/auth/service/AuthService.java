@@ -5,28 +5,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team5z.projectAuth.auth.domain.dto.LoginRequest;
 import com.team5z.projectAuth.auth.domain.dto.MemberRequest;
 import com.team5z.projectAuth.auth.domain.dto.TokenSaveDto;
-import com.team5z.projectAuth.auth.domain.record.MemberResponse;
-import com.team5z.projectAuth.auth.domain.record.LoginRecord;
-import com.team5z.projectAuth.auth.domain.record.MessageRecord;
+import com.team5z.projectAuth.auth.domain.record.*;
 import com.team5z.projectAuth.auth.domain.entity.MemberEntity;
 import com.team5z.projectAuth.auth.repository.MemberRepository;
 import com.team5z.projectAuth.global.security.apply.TokenProvider;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.web.client.RestClient;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
 import java.time.Instant;
-import java.util.Optional;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +43,7 @@ public class AuthService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
+    private final Environment env;
 
     @Transactional
     public MemberResponse join(MemberRequest memberRequest) {
@@ -113,5 +118,49 @@ public class AuthService {
         }
         redisTemplate.expireAt(loginRecord.refreshToken(), Instant.ofEpochSecond(loginRecord.refreshTokenExpired()));
         return loginRecord;
+    }
+
+    public BizInfoListRecord getBizInfo(String bizNumber) {
+        Map<String, Object> map = new HashMap<>();
+        List<String> bizNumberList = new ArrayList<>();
+        bizNumberList.add(bizNumber.replaceAll("-", ""));
+        map.put("b_no", bizNumberList);
+        String key = Optional.ofNullable(env.getProperty("api.biz")).orElse("");
+        String url = String.format("https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=%s", key);
+        // uri의 파라미터의 경우 uri로 감싸줘야 제대로 전송됨.
+        URI uri = URI.create(url);
+
+        RestClient restClient = RestClient.create();
+        ResponseEntity<BizInfoListRecord> entity = restClient.post().uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(map)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+                    HttpStatusCode statusCode = response.getStatusCode();
+                    InputStream body = response.getBody();
+                    String bodyAsString = "";
+                    try {
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(body));
+                        StringBuilder stringBuilder = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            stringBuilder.append(line);
+                        }
+                        bodyAsString = stringBuilder.toString();
+                    } finally {
+                        // 작업을 마치면 InputStream을 닫아줍니다.
+                        body.close();
+                    }
+
+                    throw new RuntimeException(String.format("[%s] [%s]", statusCode, bodyAsString));
+                })
+                .toEntity(BizInfoListRecord.class);
+
+        if (entity.getStatusCode() == HttpStatus.OK) {
+            BizInfoListRecord body = entity.getBody();
+            System.out.println(body);
+        }
+        return entity.getBody();
     }
 }
