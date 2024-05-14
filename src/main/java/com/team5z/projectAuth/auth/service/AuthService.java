@@ -44,6 +44,7 @@ public class AuthService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
     private final Environment env;
+    private final RestClient restClient;
 
     @Transactional
     public MemberResponse join(MemberRequest memberRequest) {
@@ -130,7 +131,6 @@ public class AuthService {
         // uri의 파라미터의 경우 uri로 감싸줘야 제대로 전송됨.
         URI uri = URI.create(url);
 
-        RestClient restClient = RestClient.create();
         ResponseEntity<BizInfoListRecord> entity = restClient.post().uri(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -162,5 +162,20 @@ public class AuthService {
             System.out.println(body);
         }
         return entity.getBody();
+    }
+
+    public MailBizRecord getMailBizInfo(String bizNumber) {
+        String key = Optional.ofNullable(env.getProperty("api.biz")).orElse("");
+        String url = String.format("https://apis.data.go.kr/1130000/MllBsDtl_1Service/getMllBsInfoDetail_1?serviceKey=%s", key);
+        String query = String.format("&pageNo=1&numOfRows=1&resultType=json&brno=%s", bizNumber.replaceAll("-", ""));
+        URI uri = URI.create(url + query);
+
+        ResponseEntity<MailBizResponse> response = restClient.get().uri(uri)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .toEntity(MailBizResponse.class);
+
+        System.out.println("test");
+        return MailBizRecord.from(response.getBody().items().getFirst());
     }
 }

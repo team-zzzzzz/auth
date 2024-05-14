@@ -2,10 +2,7 @@ package com.team5z.projectAuth.auth.controller;
 
 import com.team5z.projectAuth.auth.domain.dto.LoginRequest;
 import com.team5z.projectAuth.auth.domain.dto.MemberRequest;
-import com.team5z.projectAuth.auth.domain.record.BizInfoListRecord;
-import com.team5z.projectAuth.auth.domain.record.MemberResponse;
-import com.team5z.projectAuth.auth.domain.record.LoginRecord;
-import com.team5z.projectAuth.auth.domain.record.MessageRecord;
+import com.team5z.projectAuth.auth.domain.record.*;
 import com.team5z.projectAuth.auth.service.AuthService;
 import com.team5z.projectAuth.global.api.ApiCode;
 import com.team5z.projectAuth.global.api.Response;
@@ -119,6 +116,26 @@ public class AuthController {
                     .message(ApiCode.SUCCESS.getMessage())
                     .data(bizInfo)
                     .build()
+        );
+    }
+
+    @GetMapping("/biz/mail/{biz_number}")
+    @Operation(summary = "통신 판매업 번호 인증", description = "통신 판매업 번호 인증 api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상", content = @Content(schema = @Schema(implementation = MailBizRecord.class))),
+            @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+    })
+    public ResponseEntity<Response<MailBizRecord>> getMailBizInfo(@PathVariable(name = "biz_number")
+                                                                  @NotNull(message = "biz_number 비어있을 수 없습니다.")
+                                                                  @Schema(description = "biz number", example = "144-81-03460")
+                                                                  String bizNumber) {
+        MailBizRecord mailBizResponse = authService.getMailBizInfo(bizNumber);
+        return ResponseEntity.ok(
+                Response.<MailBizRecord>builder()
+                        .code(ApiCode.SUCCESS.getCode())
+                        .message(ApiCode.SUCCESS.getMessage())
+                        .data(mailBizResponse)
+                        .build()
         );
     }
 }
