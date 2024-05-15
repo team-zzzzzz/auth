@@ -9,6 +9,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 @RequiredArgsConstructor
 public class MyUserDetailsService implements UserDetailsService {
@@ -20,12 +23,12 @@ public class MyUserDetailsService implements UserDetailsService {
         );
 
         // todo 멤버 권한 설정해줘야 함.
-        String[] role = {"SELLER"};
+        List<String> role = findMember.getRole().stream().map(m -> m.getRoles().name()).toList();
 
         return User.builder()
                 .username(String.valueOf(findMember.getMemberId()))
                 .password(findMember.getPassword())
-                .roles(role)
+                .roles(role.toArray(new String[role.size()]))
                 .build();
     }
 }
