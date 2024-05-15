@@ -69,6 +69,11 @@ public class MemberRequest {
     @Nullable
     private String mailBizNumber;
 
+    @Schema(description = "회원 타입", example = "EMAIL_SELLER")
+    @Length(message = "SELLER(사업자 번호 필수), EMAIL_SELLER(통신판매업 번호 필수) 중 선택해주세요.")
+    @NotNull(message = "type 비어있을 수 없습니다.")
+    private String type;
+
     public Boolean notEqualPasswordCheck() {
         return !password.equals(passwordCheck);
     }

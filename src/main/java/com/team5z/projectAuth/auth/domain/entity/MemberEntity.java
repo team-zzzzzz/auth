@@ -42,6 +42,9 @@ public class MemberEntity {
     @Enumerated(EnumType.STRING)
     private MemberStatus status;
 
+    @Enumerated(EnumType.STRING)
+    private MemberType type;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<MemberRoleEntity> role;
 
@@ -64,7 +67,7 @@ public class MemberEntity {
         this.modifiedAt = LocalDateTime.now();
     }
     public static MemberEntity from(MemberRequest memberRequest, BCryptPasswordEncoder passwordEncoder) {
-        return MemberEntity.builder()
+        MemberEntity member = MemberEntity.builder()
                 .email(memberRequest.getEmail())
                 .password(passwordEncoder.encode(memberRequest.getPassword()))
                 .tel(memberRequest.getTel().replaceAll("-", ""))
@@ -73,10 +76,18 @@ public class MemberEntity {
                 .address(memberRequest.getAddress())
                 .addressDetail(memberRequest.getAddressDetail())
                 .bizNumber(memberRequest.getBizNumber().replaceAll("-", ""))
-                .bizMailNumber(memberRequest.getMailBizNumber() == null
-                        ? null : memberRequest.getMailBizNumber().replaceAll("-", ""))
                 .status(MemberStatus.ACTIVE)
+                .type(MemberType.valueOf(memberRequest.getType()))
                 .build();
+
+        if (member.type == MemberType.EMAIL_SELLER) {
+            Optional.ofNullable(memberRequest.getMailBizNumber()).orElseThrow(() ->
+                    new IllegalArgumentException("type이 EMAIL_SELLER일 경우 biz_mail_number 값이 필수입니다.")
+            );
+            member.bizMailNumber = memberRequest.getMailBizNumber().replaceAll("-", "");
+        }
+
+        return member;
     }
 
     public List<MemberRoleEntity> createRole(MemberRequest memberRequest) {
