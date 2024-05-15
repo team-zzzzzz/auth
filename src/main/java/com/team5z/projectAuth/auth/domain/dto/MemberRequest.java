@@ -37,6 +37,18 @@ public class MemberRequest {
     @NotNull(message = "nickname 비어있을 수 없습니다.")
     private String nickname;
 
+    @Schema(description = "우편번호", example = "경기도 성남시 분당구 판교로")
+    @NotNull(message = "zip_code 비어있을 수 없습니다.")
+    private String zipCode;
+
+    @Schema(description = "사업장 주소", example = "경기도 성남시 분당구 판교로")
+    @NotNull(message = "address 비어있을 수 없습니다.")
+    private String address;
+
+    @Schema(description = "사업장 상세 주소", example = "판교역 지하 1층")
+    @NotNull(message = "address_detail 비어있을 수 없습니다.")
+    private String addressDetail;
+
     @Schema(description = "비밀번호", example = "123456")
     @Length(min = 5, max = 20, message = "password는 5~20글자 입니다.")
     @NotNull(message = "password 비어있을 수 없습니다.")
@@ -52,8 +64,8 @@ public class MemberRequest {
     @NotNull(message = "biz_number 비어있을 수 없습니다.")
     private String bizNumber;
 
-    @Schema(description = "사업자 번호", example = "1448103460")
-    @Length(min = 10, max = 10, message = "biz_number 10글자 입니다.")
+    @Schema(description = "통신 판매 번호", example = "2018서울강남01464")
+    @Length(min = 13, max = 13, message = "mail_biz_number 13글자 입니다.")
     @Nullable
     private String mailBizNumber;
 

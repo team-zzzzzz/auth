@@ -33,18 +33,25 @@ public class MemberEntity {
     @Column(length = 200)       // 암호화 되기 때문에 비밀번호 크기가 늘어남
     private String password;    // security 사용해서 암호화 예정
 
+    @Column(length = 11)
     private String tel;
     private String name;
+    private String zipCode;
+    private String address;
+    private String addressDetail;
     @Enumerated(EnumType.STRING)
     private MemberStatus status;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<MemberRoleEntity> role;
 
+    @Column(length = 11)
+    private String bizNumber;
+    @Column(length = 13)
+    private String bizMailNumber;
+
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-
-    // todo 사업자번호, 통신판매업 번호 입력시 저장할 Entity들을 추가해주어야 함.
 
     @PrePersist
     public void prePersist() {
@@ -60,8 +67,14 @@ public class MemberEntity {
         return MemberEntity.builder()
                 .email(memberRequest.getEmail())
                 .password(passwordEncoder.encode(memberRequest.getPassword()))
-                .tel(memberRequest.getTel())
+                .tel(memberRequest.getTel().replaceAll("-", ""))
                 .name(memberRequest.getName())
+                .zipCode(memberRequest.getZipCode())
+                .address(memberRequest.getAddress())
+                .addressDetail(memberRequest.getAddressDetail())
+                .bizNumber(memberRequest.getBizNumber().replaceAll("-", ""))
+                .bizMailNumber(memberRequest.getMailBizNumber() == null
+                        ? null : memberRequest.getMailBizNumber().replaceAll("-", ""))
                 .status(MemberStatus.ACTIVE)
                 .build();
     }
