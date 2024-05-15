@@ -51,7 +51,7 @@ public class AuthService {
     private final RestClient restClient;
 
     @Transactional
-    public MemberResponse join(MemberRequest memberRequest) {
+    public PostMemberResponse join(MemberRequest memberRequest) {
         if (memberRequest.notEqualPasswordCheck()) {
             throw new IllegalArgumentException("password와 password_check가 동일하지 않습니다.");
         }
@@ -67,7 +67,7 @@ public class AuthService {
 
         memberRoleRepository.saveAll(role);
         MemberEntity saveMember = memberRepository.save(memberEntity);
-        return MemberResponse.from(saveMember);
+        return PostMemberResponse.from(saveMember);
     }
 
     public MessageRecord findMemberByEmail(String email) {
@@ -183,5 +183,12 @@ public class AuthService {
 
         System.out.println("test");
         return MailBizRecord.from(response.getBody().items().getFirst());
+    }
+
+    public MemberResponse getMember(String accessToken) {
+        Long memberId = tokenProvider.getMemberId(accessToken);
+        MemberEntity member = memberRepository.findById(memberId).orElseThrow(
+                () -> new IllegalArgumentException("회원의 정보가 없습니다."));
+        return MemberResponse.from(member);
     }
 }
