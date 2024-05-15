@@ -32,12 +32,12 @@ public class MemberRequest {
     @NotNull(message = "tel 비어있을 수 없습니다.")
     private String tel;
 
-    @Schema(description = "판매자들에게 노출될 닉네임", example = "team5z")
+    @Schema(description = "판매자들에게 노출될 닉네임", example = "판매자")
     @Length(min = 3, max = 10, message = "nickname 3~10글자 입니다.")
     @NotNull(message = "nickname 비어있을 수 없습니다.")
     private String nickname;
 
-    @Schema(description = "우편번호", example = "경기도 성남시 분당구 판교로")
+    @Schema(description = "우편번호", example = "12345")
     @NotNull(message = "zip_code 비어있을 수 없습니다.")
     private String zipCode;
 
@@ -50,12 +50,12 @@ public class MemberRequest {
     private String addressDetail;
 
     @Schema(description = "비밀번호", example = "123456")
-    @Length(min = 5, max = 20, message = "password는 5~20글자 입니다.")
+    @Length(min = 5, max = 20, message = "password 5~20글자 입니다.")
     @NotNull(message = "password 비어있을 수 없습니다.")
     private String password;
 
     @Schema(description = "비밀번호 확인", example = "123456")
-    @Length(min = 5, max = 20, message = "password는 5~20글자 입니다.")
+    @Length(min = 5, max = 20, message = "password_check 5~20글자 입니다.")
     @NotNull(message = "password_check 비어있을 수 없습니다.")
     private String passwordCheck;
 
