@@ -110,7 +110,7 @@ public class TokenProvider {
         Date accessExpired = Date.from(instant);
         // Access Token 생성
         String accessToken = Jwts.builder()
-                .setSubject(authenticate.getName())       // payload "sub": "name"
+                .setSubject(authenticate.getName())       // payload "sub": "1"
                 .claim(AUTH_KEY, authorities)        // payload "auth": "ROLE_USER"
                 .setExpiration(accessExpired)        // payload "exp": 1516239022 (예시)
                 .signWith(key, SignatureAlgorithm.HS512)    // header "alg": "HS512"
@@ -165,5 +165,27 @@ public class TokenProvider {
                 .refreshToken(refreshToken)
                 .refreshTokenExpired(refreshExpired.getTime())
                 .build();
+    }
+
+    public Long getMemberId(String token) {
+        byte[] keyBytes = Decoders.BASE64.decode(env.getProperty("jwt.secret-key"));
+        Key key = Keys.hmacShaKeyFor(keyBytes);
+
+        Claims claims = null;
+        try {
+            JwtParser jwtParser = Jwts.parserBuilder().setSigningKey(key).build();
+            claims = jwtParser.parseClaimsJws(token).getBody();
+        } catch (MalformedJwtException me) {
+            // invalid token
+        } catch (ExpiredJwtException ee) {
+            // token expired
+            claims = ee.getClaims();
+        }
+
+        if (claims.getSubject() == null) {
+            throw new IllegalArgumentException("token subject is null");
+        }
+
+        return Long.parseLong(claims.getSubject());
     }
 }

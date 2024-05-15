@@ -184,4 +184,11 @@ public class AuthService {
         System.out.println("test");
         return MailBizRecord.from(response.getBody().items().getFirst());
     }
+
+    public MemberResponse getMember(String accessToken) {
+        Long memberId = tokenProvider.getMemberId(accessToken);
+        MemberEntity member = memberRepository.findById(memberId).orElseThrow(
+                () -> new IllegalArgumentException("회원의 정보가 없습니다."));
+        return MemberResponse.from(member);
+    }
 }

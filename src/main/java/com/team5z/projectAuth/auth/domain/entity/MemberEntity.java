@@ -36,6 +36,7 @@ public class MemberEntity {
     @Column(length = 11)
     private String tel;
     private String name;
+    private String nickname;
     private String zipCode;
     private String address;
     private String addressDetail;
@@ -72,6 +73,7 @@ public class MemberEntity {
                 .password(passwordEncoder.encode(memberRequest.getPassword()))
                 .tel(memberRequest.getTel().replaceAll("-", ""))
                 .name(memberRequest.getName())
+                .nickname(memberRequest.getNickname())
                 .zipCode(memberRequest.getZipCode())
                 .address(memberRequest.getAddress())
                 .addressDetail(memberRequest.getAddressDetail())

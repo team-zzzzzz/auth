@@ -138,4 +138,23 @@ public class AuthController {
                         .build()
         );
     }
+
+    @GetMapping("/member/{access_token}")
+    @Operation(summary = "회원 정보 불러오기", description = "회원 정보 불러오기 api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상", content = @Content(schema = @Schema(implementation = MemberResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+    })
+    public ResponseEntity<Response<MemberResponse>> getMember(@PathVariable(name = "access_token") String accessToken) {
+        MemberResponse memberResponse = authService.getMember(accessToken);
+        return ResponseEntity.ok(
+                Response.<MemberResponse>builder()
+                        .code(ApiCode.SUCCESS.getCode())
+                        .message(ApiCode.SUCCESS.getMessage())
+                        .data(memberResponse)
+                        .build()
+        );
+
+    }
+
 }
