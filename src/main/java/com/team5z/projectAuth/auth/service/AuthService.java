@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team5z.projectAuth.auth.domain.dto.LoginRequest;
 import com.team5z.projectAuth.auth.domain.dto.MemberRequest;
 import com.team5z.projectAuth.auth.domain.dto.TokenSaveDto;
+import com.team5z.projectAuth.auth.domain.entity.MemberRoleEntity;
 import com.team5z.projectAuth.auth.domain.record.*;
 import com.team5z.projectAuth.auth.domain.entity.MemberEntity;
 import com.team5z.projectAuth.auth.repository.MemberRepository;
+import com.team5z.projectAuth.auth.repository.MemberRoleRepository;
 import com.team5z.projectAuth.global.security.apply.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +40,8 @@ import java.util.*;
 @Slf4j
 public class AuthService {
     private final MemberRepository memberRepository;
+    private final MemberRoleRepository memberRoleRepository;
+
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -59,7 +63,9 @@ public class AuthService {
         }
 
         MemberEntity memberEntity = MemberEntity.from(memberRequest, passwordEncoder);
+        List<MemberRoleEntity> role = memberEntity.createRole(memberRequest);
 
+        memberRoleRepository.saveAll(role);
         MemberEntity saveMember = memberRepository.save(memberEntity);
         return MemberResponse.from(saveMember);
     }

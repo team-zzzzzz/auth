@@ -9,6 +9,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 @Entity
 @Getter
 @AllArgsConstructor
@@ -28,10 +33,46 @@ public class MemberEntity {
     @Column(length = 200)       // 암호화 되기 때문에 비밀번호 크기가 늘어남
     private String password;    // security 사용해서 암호화 예정
 
+    private String tel;
+    private String name;
+    @Enumerated(EnumType.STRING)
+    private MemberStatus status;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<MemberRoleEntity> role;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
+
+    // todo 사업자번호, 통신판매업 번호 입력시 저장할 Entity들을 추가해주어야 함.
+
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.modifiedAt = now;
+    }
+    @PreUpdate
+    public void preUpdate() {
+        this.modifiedAt = LocalDateTime.now();
+    }
     public static MemberEntity from(MemberRequest memberRequest, BCryptPasswordEncoder passwordEncoder) {
         return MemberEntity.builder()
                 .email(memberRequest.getEmail())
                 .password(passwordEncoder.encode(memberRequest.getPassword()))
+                .tel(memberRequest.getTel())
+                .name(memberRequest.getName())
+                .status(MemberStatus.ACTIVE)
                 .build();
+    }
+
+    public List<MemberRoleEntity> createRole(MemberRequest memberRequest) {
+        List<MemberRoleEntity> roleList = new ArrayList<>();
+        roleList.add(MemberRoleEntity.builder().member(this).roles(MemberRoles.SELLER).build());
+        if (Optional.ofNullable(memberRequest.getMailBizNumber()).isPresent()) {
+            roleList.add(MemberRoleEntity.builder().member(this).roles(MemberRoles.MAIL_SELLER).build());
+        }
+        this.role = roleList;
+        return roleList;
     }
 }
