@@ -34,10 +34,10 @@ public class AuthController {
             @ApiResponse(responseCode = "201", description = "정상", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
             @ApiResponse(responseCode = "500", description = "서버 에러", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
     })
-    public ResponseEntity<Response<MemberResponse>> join(@RequestBody @Validated MemberRequest memberRequest, BindingResult bindingResult) {
-        MemberResponse response = authService.join(memberRequest);
+    public ResponseEntity<Response<PostMemberResponse>> join(@RequestBody @Validated MemberRequest memberRequest, BindingResult bindingResult) {
+        PostMemberResponse response = authService.join(memberRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.<MemberResponse>builder()
+                .body(Response.<PostMemberResponse>builder()
                         .code(ApiCode.SUCCESS.getCode())
                         .message(ApiCode.SUCCESS.getMessage())
                         .data(response)
