@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.team5z"
-version = "0.0.1-SNAPSHOT"
+version = "1.0"
 val queryDslVersion = "5.0.0"
 
 java {
