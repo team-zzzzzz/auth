@@ -59,3 +59,44 @@ spring:
       port: 6379
       password:
       database: 0
+
+--- #dev
+logging:
+  pattern:
+    console: "[%d{HH:mm:ss.SSS}][%-5level][%logger.%method:line%line] - %msg%n"
+  level:
+    root: info
+    com.team5z.projectAuth: debug
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # do not update
+      format_sql: true
+    show-sql: true
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        default_batch_size: 100
+  datasource:
+    hikari:
+      driver-class-name: org.h2.Driver
+      jdbc-url: jdbc:h2:mem:project;mode=mysql
+      #      jdbc-url: jdbc:h2:tcp://localhost/~/project
+      username: sa
+      password:
+  data:
+    redis:
+      host: redis
+      port: 6379
+      password:
+      database: 0
